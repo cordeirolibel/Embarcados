@@ -1001,7 +1001,7 @@
                 </option>
                 <option>
                     <name>IlinkTrustzoneImportLibraryOut</name>
-                    <state>###Unitialized###</state>
+                    <state>es_simples_import_lib.o</state>
                 </option>
             </data>
         </settings>
@@ -2069,9 +2069,9 @@
         <name>$PROJ_DIR$\src\startup_ewarm.c</name>
     </file>
     <file>
-        <name>$PROJ_DIR$\temp_driver.c</name>
+        <name>$PROJ_DIR$\src\temp_driver.c</name>
     </file>
     <file>
-        <name>$PROJ_DIR$\temp_driver.h</name>
+        <name>$PROJ_DIR$\src\temp_driver.h</name>
     </file>
 </project>
