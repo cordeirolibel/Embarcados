@@ -28,7 +28,7 @@ void main(void){
       i=i;
     }
     leitura = read(); // não está lendo 0
-    reset();
+    //reset();
     leitura = leitura;
     //printf("Leitura: %" PRIu32 "\n", leitura);
     
