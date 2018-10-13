@@ -2369,6 +2369,108 @@
             </data>
         </settings>
     </configuration>
+    <group>
+        <name>grlib</name>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\canvas.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\canvas.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\charmap.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\checkbox.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\checkbox.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\circle.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\container.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\container.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\context.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\grlib.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\image.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\imgbutton.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\imgbutton.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\keyboard.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\keyboard.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\line.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\listbox.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\listbox.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\offscr1bpp.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\offscr4bpp.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\offscr8bpp.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\pushbutton.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\pushbutton.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\radiobutton.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\radiobutton.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\rectangle.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\slider.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\slider.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\string.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\widget.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\grlib\widget.h</name>
+        </file>
+    </group>
+    <file>
+        <name>$PROJ_DIR$\src\cfaf128x128x16.c</name>
+    </file>
+    <file>
+        <name>$PROJ_DIR$\src\cfaf128x128x16.h</name>
+    </file>
     <file>
         <name>$PROJ_DIR$\..\driverlib\ewarm\Exe\driverlib.a</name>
     </file>
@@ -2377,6 +2479,12 @@
     </file>
     <file>
         <name>$PROJ_DIR$\src\startup_ewarm.c</name>
+    </file>
+    <file>
+        <name>$PROJ_DIR$\src\system_tm4c1294ncpdt.c</name>
+    </file>
+    <file>
+        <name>$PROJ_DIR$\src\system_tm4c1294ncpdt.h</name>
     </file>
     <file>
         <name>$PROJ_DIR$\src\temp_driver.c</name>
