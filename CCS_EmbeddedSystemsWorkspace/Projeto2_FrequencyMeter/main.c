@@ -19,6 +19,8 @@ volatile uint32_t leitura = 0;
 volatile uint8_t sysTickCnt = 0;
 
 static void intToString(int64_t value, volatile char *pBuf, uint32_t len, uint32_t base, uint8_t zeros);
+int button_read();
+void button_init();
 
 void SysTick_Handler(void)
 {
@@ -141,4 +143,30 @@ static void intToString(int64_t value, volatile char *pBuf, uint32_t len, uint32
             pBuf[--pos] = pAscii[value % base];
             value /= base;
     } while(value > 0);
+}
+
+
+//simple debouncing
+int button_state = 0;
+int button_read(){
+    int pin_state,i=0;
+    for (i=0;i<100000;i++){
+      pin_state = GPIOPinRead(GPIO_PORTL_BASE, GPIO_PIN_1)==GPIO_PIN_1;
+      if (pin_state==button_state)
+        return pin_state;//nao mudou
+    }
+    //mudou
+    button_state = pin_state;
+    return pin_state;
+}
+
+void button_init(){
+    // Enable the GPIOA peripheral
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC);
+    // Wait for the GPIOA module to be ready.
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOC));
+
+    // Initialize the GPIO pin configuration.
+    // Set pins as input, SW controlled.
+    GPIOPinTypeGPIOInput(GPIO_PORTL_BASE,GPIO_PIN_1); // Button 1 - PL1
 }
