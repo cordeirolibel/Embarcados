@@ -1,22 +1,4 @@
-//..............................................................................
-//
-// Copyright (c) 2017 
-// Allan Patrick de Souza - <allansouza@alunos.utfpr.edu.br>
-// Guilherme Jacichen     - <jacichen@alunos.utfpr.edu.br>
-// Jessica Isoton Sampaio - <jessicasampaio@alunos.utfpr.edu.br>
-// Mariana Carrião        - <mcarriao@alunos.utfpr.edu.br>
-//
-// cfaf128x128x16.c - Display driver for the Crystalfontz CFAF128128B-0145T
-//                  display with an ST7735S.  This version uses an SSI
-//                  interface to the display controller. This driver was made 
-//									to be used with the TivaWare grlib driver set (ti.com/tivaware), 
-//									and was based on the Kentec320x240x16_ssd2119_spi driver for the
-//									ek-tm4c1294xl board, the cfal96x64x16 driver for the dk-tm4c123g
-//									board and the Energia's Screen_HX8353E driver for dk-tm4c1294xl board
-//
-// All rights reserved. 
-// Software License Agreement
-//...............................................................................
+
 
 //*****************************************************************************
 //

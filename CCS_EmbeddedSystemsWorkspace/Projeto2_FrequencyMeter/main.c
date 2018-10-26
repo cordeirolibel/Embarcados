@@ -11,7 +11,6 @@
 #include "SystemDefaults.h"
 
 #include "temp_driver.h"
-#include "display.h"
 
 #include "grlib/grlib.h"
 #include "cfaf128x128x16.h"
