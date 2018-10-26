@@ -8,19 +8,28 @@
 #include "driverlib/sysctl.h"
 #include "driverlib/systick.h"
 #include "driverlib/pin_map.h"
+#include "SystemDefaults.h"
 
 #include "temp_driver.h"
+#include "display.h"
+
+#include "grlib/grlib.h"
+#include "cfaf128x128x16.h"
 
 #define NULL 0
 
-
-volatile char buffer[12];
+// leitura
 volatile uint32_t leitura = 0;
 volatile uint8_t sysTickCnt = 0;
+volatile bool newReadFlag = false;
 
 static void intToString(int64_t value, volatile char *pBuf, uint32_t len, uint32_t base, uint8_t zeros);
-int button_read();
-void button_init();
+static void initMcu(void);
+static void sendUART(char *string);
+
+
+tContext sContext;
+
 
 void SysTick_Handler(void)
 {
@@ -28,61 +37,89 @@ void SysTick_Handler(void)
 
     if(sysTickCnt >= 12)
     {
-        uint8_t cnt = 0;
         leitura = read() / 2;
-        intToString(leitura,buffer,12,10,0);
-        while(buffer[cnt] && cnt < 12)
-        {
-            UARTCharPut(UART0_BASE,buffer[cnt++]);
-        }
-        UARTCharPut(UART0_BASE,'\n');
-        UARTCharPut(UART0_BASE,'\r');
         reset();
         sysTickCnt = 0;
+        newReadFlag = true;
     }
 } // SysTick_Handler
 
-
-
 void main(void)
 {
-  uint32_t ui32SysClock = SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ |
-                                              SYSCTL_OSC_MAIN |
-                                              SYSCTL_USE_PLL |
-                                              SYSCTL_CFG_VCO_480),
-                                              120000000); // PLL em 120MHz
+    uint32_t period = LOW_FREQ;
+    uint32_t delayCount = 0;
+    uint32_t userSwitchState = 0;
+    char buffer[12];
 
+    initMcu();
 
-  SysTickEnable();              // Habilita SysTick
-  SysTickPeriodSet(10000000);   // f = 1/12Hz
+    userSwitchState = GPIOPinRead(GPIO_PORTJ_BASE, GPIO_PIN_0);
 
+    sendUART("LeFreq\n\r");
+    GrStringDraw(&sContext,"Frequency Meter",-1,0,0,true);
 
-  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
-  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOA));
+    while(1)
+    {
+        if(userSwitchState != GPIOPinRead(GPIO_PORTJ_BASE, GPIO_PIN_0))
+        {
+            userSwitchState = GPIOPinRead(GPIO_PORTJ_BASE, GPIO_PIN_0);
 
-  GPIOPinTypeUART(GPIO_PORTA_AHB_BASE,GPIO_PIN_0|GPIO_PIN_1);
-  GPIOPinConfigure(GPIO_PA0_U0RX);
-  GPIOPinConfigure(GPIO_PA1_U0TX);
+            for(uint16_t cnt = 0; cnt < DEBOUNCE;cnt++);
 
-  SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
-  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_UART0));
+            if(GPIOPinRead(GPIO_PORTJ_BASE, GPIO_PIN_0) != GPIO_PIN_0)
+            {
+                if (period == LOW_FREQ)
+                {
+                    period = HIGH_FREQ;                 // Muda a escala para kHz (?)
 
-  UARTConfigSetExpClk(UART0_BASE,ui32SysClock,115200,UART_CONFIG_WLEN_8|UART_CONFIG_STOP_ONE|UART_CONFIG_PAR_NONE);
-  UARTCharPut(UART0_BASE,'t');
-  UARTCharPut(UART0_BASE,'e');
-  UARTCharPut(UART0_BASE,'s');
-  UARTCharPut(UART0_BASE,'t');
-  UARTCharPut(UART0_BASE,'e');
-  UARTCharPut(UART0_BASE,'\n');
+                    SysTickPeriodSet(period);
+                }
+                else
+                {
+                    period = LOW_FREQ;                 // Muda a escala para Hz (?)
 
-  SysTickIntEnable();   // Habilita interrupção SysTick
-  init();               // Inicializa timer (contador de pulso)
+                    SysTickPeriodSet(period);
+                }
+            }
+        } // if userSw
 
-  while(1)
-  {
-  } // while
+        if(newReadFlag)
+        {
+            if(period == LOW_FREQ)
+            {
+                intToString(leitura,buffer,12,10,0);
 
-  return;
+                sendUART(buffer);
+                sendUART(" Hz\n\r");
+                GrStringDraw(&sContext,"F:            ",-1,0,30,true);
+                GrStringDraw(&sContext,buffer,-1,12,30,true);
+                GrStringDraw(&sContext,"Hz",-1,60,30,true);
+            }
+
+            else
+            {
+                if(delayCount >= 1000)
+                {
+                    intToString(leitura,buffer,12,10,0);
+
+                    sendUART(buffer);
+                    sendUART(" kHz\n\r");
+                    GrStringDraw(&sContext,"F:            ",-1,0,30,true);
+                    GrStringDraw(&sContext,buffer,-1,12,30,true);
+                    GrStringDraw(&sContext,"kHz",-1,60,30,true);
+
+                    delayCount = 0;
+                }
+
+                else
+                    delayCount++;
+
+            }
+            newReadFlag = false;
+        } // if newRead
+    } // while endless
+
+    return;
 } // main
 
 
@@ -146,27 +183,63 @@ static void intToString(int64_t value, volatile char *pBuf, uint32_t len, uint32
 }
 
 
-//simple debouncing
-int button_state = 0;
-int button_read(){
-    int pin_state,i=0;
-    for (i=0;i<100000;i++){
-      pin_state = GPIOPinRead(GPIO_PORTL_BASE, GPIO_PIN_1)==GPIO_PIN_1;
-      if (pin_state==button_state)
-        return pin_state;//nao mudou
-    }
-    //mudou
-    button_state = pin_state;
-    return pin_state;
+static void initMcu(void)
+{
+    // Main Clock configuration
+    uint32_t ui32SysClock = SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ |
+                                                  SYSCTL_OSC_MAIN |
+                                                  SYSCTL_USE_PLL |
+                                                  SYSCTL_CFG_VCO_480),
+                                                  120000000); // PLL em 120MHz
+
+    // SysTick timer configuration
+    SysTickEnable();              // Habilita SysTick
+    SysTickPeriodSet(LOW_FREQ);   // f = 1/12Hz
+
+    SysTickIntEnable();   // Habilita interrupção SysTick
+
+    // TimerA0 config
+    init();               // Inicializa timer (contador de pulso)
+
+    // BackChannel UART config
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOA));
+
+    GPIOPinTypeUART(GPIO_PORTA_AHB_BASE,GPIO_PIN_0|GPIO_PIN_1);
+    GPIOPinConfigure(GPIO_PA0_U0RX);
+    GPIOPinConfigure(GPIO_PA1_U0TX);
+
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_UART0));
+
+    UARTConfigSetExpClk(UART0_BASE,ui32SysClock,115200,UART_CONFIG_WLEN_8|UART_CONFIG_STOP_ONE|UART_CONFIG_PAR_NONE);
+
+    // GPIO User Button configuration
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOJ); // Habilita GPIO J (push-button SW1 = PJ0)
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOJ)); // Aguarda final da habilitação
+
+    GPIOPinTypeGPIOInput(GPIO_PORTJ_BASE, GPIO_PIN_0); // push-buttons SW1
+    GPIOPadConfigSet(GPIO_PORTJ_BASE, GPIO_PIN_0 | GPIO_PIN_1, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
+
+    // Display Configuration
+    //initDisplay();
+
+
+    cfaf128x128x16Init();
+    GrContextInit(&sContext, &g_sCfaf128x128x16);
+    GrFlush(&sContext);
+    GrContextFontSet(&sContext, g_psFontFixed6x8);
+    GrContextForegroundSet(&sContext, ClrWhite);
+    GrContextBackgroundSet(&sContext, 0x3840B0);
+
+    return;
 }
 
-void button_init(){
-    // Enable the GPIOA peripheral
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC);
-    // Wait for the GPIOA module to be ready.
-    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOC));
-
-    // Initialize the GPIO pin configuration.
-    // Set pins as input, SW controlled.
-    GPIOPinTypeGPIOInput(GPIO_PORTL_BASE,GPIO_PIN_1); // Button 1 - PL1
+static void sendUART(char *string)
+{
+    while(*string)
+    {
+        UARTCharPut(UART0_BASE,*string);
+        string++;
+    }
 }

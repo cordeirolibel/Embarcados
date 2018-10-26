@@ -3,6 +3,8 @@
 #include "tm4c1294ncpdt.h"
 #include "temp_driver.h"
 
+
+
 void init()
 {
       /// CONFIGURA GPIO PA0
@@ -56,10 +58,10 @@ void init()
   TIMER0_TAPR_R = 0xFF;
   
   // limite da contagem como fundo de escala
-  TIMER0_TAMATCHR_R = 0xFFFF - 1;
+  TIMER0_TAMATCHR_R = 0x0000;
   
   // limite da contagem como fundo de escala
-  TIMER0_TAPMR_R = 0xFF - 1;
+  TIMER0_TAPMR_R = 0x01;
   
   // habilita Timer0A
   TIMER0_CTL_R |= 0x01;
@@ -67,7 +69,7 @@ void init()
 
 uint32_t read()
 {
-    return TIMER0_TAV_R & 0x00FFFFFF;
+    return (TIMER0_TAV_R & 0x0000FFFF);
 }
 
 void reset()
